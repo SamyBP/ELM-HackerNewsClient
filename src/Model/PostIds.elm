@@ -93,5 +93,5 @@ If the list is empty, the function returns `Nothing`.
 -}
 decode : De.Decoder (Maybe PostIds)
 decode =
-    -- De.fail "TODO"
-    Debug.todo "PostIds.decode"
+    De.fail "TODO"
+    -- Debug.todo "PostIds.decode"

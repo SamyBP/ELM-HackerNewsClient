@@ -34,5 +34,5 @@ Relevant library functions:
 -}
 decode : De.Decoder Post
 decode =
-    -- De.fail "TODO"
-    Debug.todo "Post.decode"
+    De.fail "TODO"
+    -- Debug.todo "Post.decode"

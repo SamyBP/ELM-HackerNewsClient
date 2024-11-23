@@ -29,8 +29,8 @@ Relevant library functions:
 -}
 postTable : PostsConfig -> Time.Posix -> List Post -> Html Msg
 postTable _ _ _ =
-    -- div [] []
-    Debug.todo "postTable"
+    div [] []
+    -- Debug.todo "postTable"
 
 
 {-| Show the configuration options for the posts table
@@ -49,5 +49,5 @@ Relevant functions:
 -}
 postsConfigView : PostsConfig -> Html Msg
 postsConfigView _ =
-    -- div [] []
-    Debug.todo "postsConfigView"
+    div [] []
+    -- Debug.todo "postsConfigView"

@@ -140,8 +140,8 @@ durationBetween (Time.millisToPosix 1000) (Time.millisToPosix 1000) --> Nothing
 -}
 durationBetween : Time.Posix -> Time.Posix -> Maybe Duration
 durationBetween _ _ =
-    -- Nothing
-    Debug.todo "durationBetween"
+    Nothing
+    -- Debug.todo "durationBetween"
 
 
 {-| Format a `Duration` as a human readable string
@@ -165,5 +165,5 @@ durationBetween _ _ =
 -}
 formatDuration : Duration -> String
 formatDuration _ =
-    -- ""
-    Debug.todo "formatDuration"
+    ""
+    -- Debug.todo "formatDuration"

@@ -44,8 +44,8 @@ sortToString sort =
 -}
 sortFromString : String -> Maybe SortBy
 sortFromString _ =
-    -- Nothing
-    Debug.todo "sortFromString"
+    Nothing
+    -- Debug.todo "sortFromString"
 
 
 sortToCompareFn : SortBy -> (Post -> Post -> Order)
@@ -87,8 +87,11 @@ type Change
 {-| Given a change and the current configuration, return a new configuration with the changes applied
 -}
 applyChanges : Change -> PostsConfig -> PostsConfig
-applyChanges _ _ =
-    Debug.todo "applyChanges"
+applyChanges change config =
+    -- Debug.todo "applyChanges"
+    case change of
+        ChangeTODO -> 
+            { config | postsToShow = 10 }
 
 
 {-| Given the configuration and a list of posts, return the relevant subset of posts according to the configuration
@@ -104,5 +107,5 @@ Relevant library functions:
 -}
 filterPosts : PostsConfig -> List Post -> List Post
 filterPosts _ _ =
-    -- []
-    Debug.todo "filterPosts"
+    []
+    -- Debug.todo "filterPosts"
