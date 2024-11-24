@@ -120,7 +120,6 @@ postsConfigView config =
             (\selectedValue -> ConfigChanged (ChangeSortBy (Config.sortFromString selectedValue |> Maybe.withDefault config.sortBy)))
         ]
 
--- Helper function to render a checkbox
 checkbox : String -> String -> Bool -> (Bool -> Msg) -> Html Msg
 checkbox id labelText isChecked onCheck =
     Html.div []
@@ -134,7 +133,6 @@ checkbox id labelText isChecked onCheck =
         , Html.label [ Html.Attributes.for id ] [ text labelText ]
         ]
 
--- Helper function to render a dropdown
 dropdown : String -> String -> List String -> String -> (String -> Msg) -> Html Msg
 dropdown id labelText options selectedValue onChange =
     Html.div []
@@ -146,7 +144,6 @@ dropdown id labelText options selectedValue onChange =
             (List.map (renderOption selectedValue) options)
         ]
 
--- Helper function to render an option element
 renderOption : String -> String -> Html Msg
 renderOption selectedValue option =
     Html.option

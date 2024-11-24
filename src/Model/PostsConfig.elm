@@ -106,7 +106,6 @@ type Change
 -}
 applyChanges : Change -> PostsConfig -> PostsConfig
 applyChanges change config =
-    -- Debug.todo "applyChanges"
     case change of
         ChangePostsToFetch count -> 
             { config | postsToFetch = count }
@@ -138,16 +137,13 @@ Relevant library functions:
 filterPosts : PostsConfig -> List Post -> List Post
 filterPosts config posts =
     let
-        filteredPosts =
-            applyFilters config posts
-        
-        takenPosts =
-            List.take config.postsToShow filteredPosts
-
-        sortedPosts =
-            applySorting config.sortBy takenPosts
+        compareFunction = 
+            computeCompareFunctionFromCriteria config.sortBy
     in
-        sortedPosts
+    posts
+        |> applyFilters config
+        |> List.take config.postsToShow
+        |> List.sortWith compareFunction
 
 applyFilters : PostsConfig -> List Post -> List Post
 applyFilters config posts =
@@ -156,14 +152,6 @@ applyFilters config posts =
             &&
         (config.showTextOnly || Maybe.withDefault "" post.url /= "")
     ) posts
-
-applySorting : SortBy -> List Post -> List Post
-applySorting sortBy posts =
-    let
-        compareFunction = 
-            computeCompareFunctionFromCriteria sortBy
-    in 
-        List.sortWith compareFunction posts
 
 computeCompareFunctionFromCriteria : SortBy -> (Post -> Post -> Order)
 computeCompareFunctionFromCriteria sortBy = 
