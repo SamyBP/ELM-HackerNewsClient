@@ -57,7 +57,7 @@ postTableRow now post =
         , Html.td [ Html.Attributes.class "post-type" ] [ Html.text post.type_ ]
         , Html.td [ Html.Attributes.class "post-time" ] [ Html.text (formatPostTime now post.time) ]
         , Html.td [ Html.Attributes.class "post-url" ]
-            [ Html.a [ Html.Attributes.href (Maybe.withDefault "#" post.url) ] [ Html.text "Link" ] ]
+            [ Html.a [ Html.Attributes.href (Maybe.withDefault "#" post.url) ] [ Html.text "Follow this link to find out more" ] ]
         ]
 
 formatPostTime : Time.Posix -> Time.Posix -> String
