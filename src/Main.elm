@@ -10,6 +10,8 @@ import Model.Post as Post
 import Model.PostIds as PostIds exposing (HackerNewsItem(..))
 import Model.PostsConfig
 import View.Posts exposing (postTable, postsConfigView)
+import Model.PostsConfig exposing (PostsConfig)
+import Model.PostsConfig as PostsConfig
 
 
 prodFlags : Config
@@ -149,7 +151,11 @@ update msg model =
 
                 ( Model.LoadedPosts state, ConfigChanged change ) ->
                     -- ( Model.LoadedPosts state, Effect.NoEffect )
-                    ( Debug.todo "update the config in the update function", Effect.NoEffect )
+                    let
+                        changedConfiguration = 
+                            PostsConfig.applyChanges change state.config
+                    in 
+                        (Model.LoadedPosts { state | config = changedConfiguration }, Effect.NoEffect)
 
                 ( state, _ ) ->
                     ( state, Effect.NoEffect )

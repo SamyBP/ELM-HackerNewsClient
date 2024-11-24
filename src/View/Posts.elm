@@ -55,10 +55,28 @@ postTableRow now post =
         [ Html.td [ Html.Attributes.class "post-score" ] [ Html.text (String.fromInt post.score) ]
         , Html.td [ Html.Attributes.class "post-title" ] [ Html.text post.title ]
         , Html.td [ Html.Attributes.class "post-type" ] [ Html.text post.type_ ]
-        , Html.td [ Html.Attributes.class "post-time" ] [ Html.text (Util.Time.formatTime Time.utc post.time) ]
+        , Html.td [ Html.Attributes.class "post-time" ] [ Html.text (formatPostTime now post.time) ]
         , Html.td [ Html.Attributes.class "post-url" ]
             [ Html.a [ Html.Attributes.href (Maybe.withDefault "#" post.url) ] [ Html.text "Link" ] ]
         ]
+
+formatPostTime : Time.Posix -> Time.Posix -> String
+formatPostTime now postTime =
+    let
+        formattedDate = Util.Time.formatDate (Util.Time.posixToDate Time.utc postTime)
+        formattedTime = Util.Time.formatTime Time.utc postTime
+        relativeTime =
+            case Util.Time.durationBetween postTime now of
+                Just duration ->
+                    Util.Time.formatDuration duration
+
+                Nothing ->
+                    "Just now"
+    in
+    formattedDate ++ " " ++ formattedTime ++ " (" ++ relativeTime ++ ")"
+
+
+
 
 {-| Show the configuration options for the posts table
 
@@ -78,58 +96,61 @@ Relevant functions:
 postsConfigView : PostsConfig -> Html Msg
 postsConfigView config =
     div []
-        [ Html.div []
-            [ Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "checkbox-show-job-posts"
-                , Html.Attributes.checked config.showJobs
-                , Html.Events.onCheck (\_ -> ConfigChanged ChangeShowJobs)
-                ]
-                []
-            , Html.label [ Html.Attributes.for "checkbox-show-job-posts" ] [ text "Show job posts" ]
-            ]
-        , Html.div []
-            [ Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "checkbox-show-text-only-posts"
-                , Html.Attributes.checked config.showTextOnly
-                , Html.Events.onCheck (ConfigChanged << (\_ -> ChangeShowTextOnly))
-                ]
-                []
-            , Html.label [ Html.Attributes.for "checkbox-show-text-only-posts" ] [ text "Show text-only posts" ]
-            ]
-        , Html.div []
-            [ Html.label [ Html.Attributes.for "select-posts-per-page" ] [ text "Posts per page: " ]
-            , Html.select
-                [ Html.Attributes.id "select-posts-per-page"
-                , Html.Events.onInput ((String.toInt >> Maybe.withDefault config.postsToShow) >> (ConfigChanged << ChangePostsToShow))
-                ]
-                (List.map
-                    (\option ->
-                        Html.option
-                            [ Html.Attributes.value (String.fromInt option)
-                            , if option == config.postsToShow then Html.Attributes.selected True else Html.Attributes.selected False
-                            ]
-                            [ text (String.fromInt option) ]
-                    )
-                    [10, 25, 50]
-                )
-            ]
-        , Html.div []
-            [ Html.label [ Html.Attributes.for "select-sort-by" ] [ text "Sort by: " ]
-            , Html.select
-                [ Html.Attributes.id "select-sort-by"
-                , Html.Events.onInput ((Config.sortFromString >> Maybe.withDefault config.sortBy) >> (ConfigChanged << ChangeSortBy))
-                ]
-                (List.map
-                    (\option ->
-                        Html.option
-                            [ Html.Attributes.value (Config.sortToString option)
-                            , if option == config.sortBy then Html.Attributes.selected True else Html.Attributes.selected False
-                            ]
-                            [ text (Config.sortToString option) ]
-                    )
-                    Model.PostsConfig.sortOptions
-                )
-            ]
+        [ checkbox
+            "checkbox-show-job-posts"
+            "Show job posts"
+            config.showJobs
+            (\_ -> ConfigChanged ChangeShowJobs)
+        , checkbox
+            "checkbox-show-text-only-posts"
+            "Show text-only posts"
+            config.showTextOnly
+            (\_ -> ConfigChanged ChangeShowTextOnly)
+        , dropdown
+            "select-posts-per-page"
+            "Posts per page: "
+            (List.map String.fromInt [10, 25, 50])
+            (String.fromInt config.postsToShow)
+            (\selectedValue -> ConfigChanged (ChangePostsToShow (String.toInt selectedValue |> Maybe.withDefault config.postsToShow)))
+        , dropdown
+            "select-sort-by"
+            "Sort by: "
+            (List.map Config.sortToString Model.PostsConfig.sortOptions)
+            (Config.sortToString config.sortBy)
+            (\selectedValue -> ConfigChanged (ChangeSortBy (Config.sortFromString selectedValue |> Maybe.withDefault config.sortBy)))
         ]
+
+-- Helper function to render a checkbox
+checkbox : String -> String -> Bool -> (Bool -> Msg) -> Html Msg
+checkbox id labelText isChecked onCheck =
+    Html.div []
+        [ Html.input
+            [ Html.Attributes.type_ "checkbox"
+            , Html.Attributes.id id
+            , Html.Attributes.checked isChecked
+            , Html.Events.onCheck onCheck
+            ]
+            []
+        , Html.label [ Html.Attributes.for id ] [ text labelText ]
+        ]
+
+-- Helper function to render a dropdown
+dropdown : String -> String -> List String -> String -> (String -> Msg) -> Html Msg
+dropdown id labelText options selectedValue onChange =
+    Html.div []
+        [ Html.label [ Html.Attributes.for id ] [ text labelText ]
+        , Html.select
+            [ Html.Attributes.id id
+            , Html.Events.onInput onChange
+            ]
+            (List.map (renderOption selectedValue) options)
+        ]
+
+-- Helper function to render an option element
+renderOption : String -> String -> Html Msg
+renderOption selectedValue option =
+    Html.option
+        [ Html.Attributes.value option
+        , Html.Attributes.selected (option == selectedValue)
+        ]
+        [ text option ]

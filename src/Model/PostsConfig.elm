@@ -3,6 +3,7 @@ module Model.PostsConfig exposing (Change(..), PostsConfig, SortBy(..), applyCha
 import Html.Attributes exposing (scope)
 import Model.Post exposing (Post)
 import Time
+import List exposing (sortBy)
 
 
 type SortBy
@@ -43,9 +44,22 @@ sortToString sort =
 
 -}
 sortFromString : String -> Maybe SortBy
-sortFromString _ =
-    Nothing
-    -- Debug.todo "sortFromString"
+sortFromString str =
+    case str of
+        "Score" ->
+            Just Score
+
+        "Title" ->
+            Just Title
+
+        "Posted" ->
+            Just Posted
+
+        "None" ->
+            Just None
+
+        _ ->
+            Nothing
 
 
 sortToCompareFn : SortBy -> (Post -> Post -> Order)
@@ -122,6 +136,53 @@ Relevant library functions:
 
 -}
 filterPosts : PostsConfig -> List Post -> List Post
-filterPosts _ _ =
-    []
-    -- Debug.todo "filterPosts"
+filterPosts config posts =
+    let
+        filteredPosts =
+            applyFilters config posts
+        
+        takenPosts =
+            List.take config.postsToShow filteredPosts
+
+        sortedPosts =
+            applySorting config.sortBy takenPosts
+    in
+        sortedPosts
+
+applyFilters : PostsConfig -> List Post -> List Post
+applyFilters config posts =
+    List.filter (\post ->
+        (config.showJobs || post.type_ /= "job")
+            &&
+        (config.showTextOnly || Maybe.withDefault "" post.url /= "")
+    ) posts
+
+applySorting : SortBy -> List Post -> List Post
+applySorting sortBy posts =
+    let
+        compareFunction = 
+            computeCompareFunctionFromCriteria sortBy
+    in 
+        List.sortWith compareFunction posts
+
+computeCompareFunctionFromCriteria : SortBy -> (Post -> Post -> Order)
+computeCompareFunctionFromCriteria sortBy = 
+    case sortBy of
+        Title ->
+            \postA postB ->
+                compare
+                    (String.toLower postA.title)
+                    (String.toLower postB.title)
+
+        Score ->
+            \postA postB ->
+                compare postB.score postA.score
+
+        Posted ->
+            \postA postB ->
+                compare
+                    (Time.posixToMillis postB.time)
+                    (Time.posixToMillis postA.time)
+
+        None ->
+            \_ _ -> EQ

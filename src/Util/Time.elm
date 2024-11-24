@@ -139,9 +139,36 @@ durationBetween (Time.millisToPosix 1000) (Time.millisToPosix 1000) --> Nothing
 
 -}
 durationBetween : Time.Posix -> Time.Posix -> Maybe Duration
-durationBetween _ _ =
-    Nothing
-    -- Debug.todo "durationBetween"
+durationBetween t1 t2 =
+    if Time.posixToMillis t1 >= Time.posixToMillis t2 then
+        Nothing
+    else
+        let
+            diffMillis =
+                Time.posixToMillis t2 - Time.posixToMillis t1
+
+            totalSeconds =
+                diffMillis // 1000
+
+            seconds =
+                Basics.remainderBy 60 totalSeconds
+
+            totalMinutes =
+                totalSeconds // 60
+
+            minutes =
+                Basics.remainderBy 60 totalMinutes
+
+            totalHours =
+                totalMinutes // 60
+
+            hours =
+                Basics.remainderBy 24 totalHours
+
+            days =
+                totalHours // 24
+        in
+            Just { seconds = seconds, minutes = minutes, hours = hours, days = days }
 
 
 {-| Format a `Duration` as a human readable string
@@ -164,6 +191,20 @@ durationBetween _ _ =
 
 -}
 formatDuration : Duration -> String
-formatDuration _ =
-    ""
-    -- Debug.todo "formatDuration"
+formatDuration duration =
+    let
+        parts =
+            [ (duration.days, "day")
+            , (duration.hours, "hour")
+            , (duration.minutes, "minute")
+            , (duration.seconds, "second")
+            ]
+                |> List.filter (\(value, _) -> value > 0)
+                |> List.map (\(value, label) -> String.fromInt value ++ " " ++ label ++ (if value > 1 then "s" else ""))
+    in
+    case parts of
+        [] ->
+            "just now"
+
+        _ ->
+            String.join " " parts ++ " ago"
