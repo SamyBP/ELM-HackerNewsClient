@@ -81,7 +81,11 @@ defaultConfig =
 {-| A type that describes what option changed and how
 -}
 type Change
-    = ChangeTODO
+    = ChangePostsToFetch Int
+    | ChangePostsToShow Int
+    | ChangeSortBy SortBy
+    | ChangeShowJobs
+    | ChangeShowTextOnly
 
 
 {-| Given a change and the current configuration, return a new configuration with the changes applied
@@ -90,8 +94,20 @@ applyChanges : Change -> PostsConfig -> PostsConfig
 applyChanges change config =
     -- Debug.todo "applyChanges"
     case change of
-        ChangeTODO -> 
-            { config | postsToShow = 10 }
+        ChangePostsToFetch count -> 
+            { config | postsToFetch = count }
+        
+        ChangePostsToShow count -> 
+            { config | postsToShow = count }
+        
+        ChangeSortBy criteria -> 
+             { config | sortBy = criteria }
+        
+        ChangeShowJobs -> 
+            { config | showJobs = not config.showJobs }
+        
+        ChangeShowTextOnly -> 
+            { config | showTextOnly = not config.showTextOnly }
 
 
 {-| Given the configuration and a list of posts, return the relevant subset of posts according to the configuration
